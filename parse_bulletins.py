@@ -425,19 +425,23 @@ def cleanup_old_dates():
     for dated_folder in sorted(os.listdir(ntap_bulletins_folder)):
         ntap_bulletins_dated_folder = os.path.join(ntap_bulletins_folder, dated_folder)
         for file_name in sorted(os.listdir(ntap_bulletins_dated_folder)):
-            ntap_rss = os.path.join(ntap_bulletins_dated_folder, "ntap_rss.xml")
-            if os.path.exists(ntap_rss):
-                cleanup_count += 1
-                os.remove(ntap_rss)
-            if file_name.startswith("NTAP") and file_name.endswith(".json"):
-                ntap_path = os.path.join(ntap_bulletins_dated_folder, file_name)
-                timestamp_of_file_modified = os.path.getmtime(ntap_path)
-                modification_date = datetime.fromtimestamp(timestamp_of_file_modified)
-                number_of_days = (datetime.now() - modification_date).days
-                if number_of_days > 12:
+            all_bulletins_json = os.path.join(ntap_bulletins_dated_folder, "ALL_BULLETINS.json")
+            if os.path.exists(all_bulletins_json):
+                ntap_urls = os.path.join(ntap_bulletins_dated_folder, "ntap_urls.json")
+                if os.path.exists(ntap_urls):
                     cleanup_count += 1
-                    os.remove(ntap_path)
-        print(dated_folder, cleanup_count)
-
+                    os.remove(ntap_urls)
+                ntap_rss = os.path.join(ntap_bulletins_dated_folder, "ntap_rss.xml")
+                if os.path.exists(ntap_rss):
+                    cleanup_count += 1
+                    os.remove(ntap_rss)
+                if file_name.startswith("NTAP") and file_name.endswith(".json"):
+                    ntap_path = os.path.join(ntap_bulletins_dated_folder, file_name)
+                    timestamp_of_file_modified = os.path.getmtime(ntap_path)
+                    modification_date = datetime.fromtimestamp(timestamp_of_file_modified)
+                    number_of_days = (datetime.now() - modification_date).days
+                    if number_of_days > 2:
+                        cleanup_count += 1
+                        os.remove(ntap_path)
     print("removed:".ljust(30), cleanup_count)
     print("exited:".ljust(30), "cleanup_old_dates")

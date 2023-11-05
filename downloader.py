@@ -64,14 +64,15 @@ def html_list_cve_bulletins():
     data_folder = os.path.join(script_path, 'data')
     ntap_folder = os.path.join(data_folder, 'bulletins', date_stamp)
     ntap_urls = os.path.join(data_folder, 'bulletins', date_stamp, "ntap_urls.json")
-    ntap_rss = os.path.join(data_folder, 'bulletins', date_stamp, "ntap_rss.xml")
+
     os.makedirs(data_folder, exist_ok=True)
     os.makedirs(ntap_folder, exist_ok=True)
 
-    rss_feed = "https://security.netapp.com/advisory/index.xml"
-    rss = requests.get(rss_feed, verify=False)
-    with open(ntap_rss, 'wb') as file_xml:
-        file_xml.write(rss.content)
+    # ntap_rss = os.path.join(data_folder, 'bulletins', date_stamp, "ntap_rss.xml")
+    # rss_feed = "https://security.netapp.com/advisory/index.xml"
+    # rss = requests.get(rss_feed, verify=False)
+    # with open(ntap_rss, 'wb') as file_xml:
+    #     file_xml.write(rss.content)
 
     data_feed = "https://security.netapp.com/data/advisory/"
     html_page = requests.get(data_feed, verify=False).content

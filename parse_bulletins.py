@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import datetime
 import pandas as pd
@@ -413,3 +414,30 @@ def find_open_advisories_by_version(application_list):
                 df = pd.read_json(input_file)
             df.to_csv(csv_out, encoding='utf-8', index=False)
     print("exited:".ljust(30), "find_open_advisories_by_version")
+
+
+def cleanup_old_dates():
+    cleanup_count = 0
+    print("entered:".ljust(30), "cleanup_old_dates")
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    data_folder = os.path.join(script_path, 'data')
+    ntap_bulletins_folder = os.path.join(data_folder, 'bulletins')
+    for dated_folder in sorted(os.listdir(ntap_bulletins_folder)):
+        ntap_bulletins_dated_folder = os.path.join(ntap_bulletins_folder, dated_folder)
+        for file_name in sorted(os.listdir(ntap_bulletins_dated_folder)):
+            ntap_rss = os.path.join(ntap_bulletins_dated_folder, "ntap_rss.xml")
+            if os.path.exists(ntap_rss):
+                cleanup_count += 1
+                os.remove(ntap_rss)
+            if file_name.startswith("NTAP") and file_name.endswith(".json"):
+                ntap_path = os.path.join(ntap_bulletins_dated_folder, file_name)
+                timestamp_of_file_modified = os.path.getmtime(ntap_path)
+                modification_date = datetime.fromtimestamp(timestamp_of_file_modified)
+                number_of_days = (datetime.now() - modification_date).days
+                if number_of_days > 12:
+                    cleanup_count += 1
+                    os.remove(ntap_path)
+        print(dated_folder, cleanup_count)
+
+    print("removed:".ljust(30), cleanup_count)
+    print("exited:".ljust(30), "cleanup_old_dates")

@@ -2,18 +2,23 @@ entered:                       download_cve_details
 entered:                       html_list_cve_bulletins
 exited:                        html_list_cve_bulletins
 entered:                       download_parallel
-Error with download_url(): https://security.netapp.com/data/advisory/NTAP-20160930-0001.json HTTPSConnectionPool(host='security.netapp.com', port=443): Read timed out. (read timeout=None)
-2238       code: 404 url: https://security.netapp.com/data/advisory/NTAP-20160930-0001.json time (s): 983.3616800308228
-Error with download_url(): https://security.netapp.com/data/advisory/NTAP-20161019-0002.json HTTPSConnectionPool(host='security.netapp.com', port=443): Read timed out. (read timeout=None)
-2239       code: 404 url: https://security.netapp.com/data/advisory/NTAP-20161019-0002.json time (s): 983.0288150310516
+Error with download_url(): https://security.netapp.com/data/advisory/NTAP-20220915-0009.json HTTPSConnectionPool(host='security.netapp.com', port=443): Read timed out. (read timeout=None)
+1976       code: 404 url: https://security.netapp.com/data/advisory/NTAP-20220915-0009.json time (s): 983.7065923213959
+Error with download_url(): https://security.netapp.com/data/advisory/NTAP-20220915-0008.json HTTPSConnectionPool(host='security.netapp.com', port=443): Read timed out. (read timeout=None)
+1977       code: 404 url: https://security.netapp.com/data/advisory/NTAP-20220915-0008.json time (s): 983.8437747955322
+Error with download_url(): https://security.netapp.com/data/advisory/NTAP-20230517-0001.json HTTPSConnectionPool(host='security.netapp.com', port=443): Read timed out. (read timeout=None)
+2239       code: 404 url: https://security.netapp.com/data/advisory/NTAP-20230517-0001.json time (s): 982.3774626255035
 exited:                        download_parallel
 downloaded_bulletins:          2239
 exited:                        download_cve_details
 entered:                       create_bulletins_products
-Create:                        /mnt/Drives/01000/Tools/NetApp_CVE_Parser/data/bulletins/20231104/ALL_BULLETINS.json
-Create:                        /mnt/Drives/01000/Tools/NetApp_CVE_Parser/data/bulletins/20231104/ALL_PRODUCTS.json
+Create:                        /mnt/Drives/01000/Tools/NetApp_CVE_Parser/data/bulletins/20231108/ALL_BULLETINS.json
+Create:                        /mnt/Drives/01000/Tools/NetApp_CVE_Parser/data/bulletins/20231108/ALL_PRODUCTS.json
 exited:                        create_bulletins_products
 entered:                       create_baseline_reports
 exited:                        create_baseline_reports
 entered:                       find_open_advisories_by_version
 exited:                        find_open_advisories_by_version
+entered:                       cleanup_old_dates
+removed:                       3526
+exited:                        cleanup_old_dates

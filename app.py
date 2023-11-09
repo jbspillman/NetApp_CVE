@@ -30,10 +30,10 @@ applications_to_watch = [
 
 def main():
 
-    # download_cve_details()  # gets the data on the date of running script.
-    # create_bulletins_products()  # ensures the bulletins and products json files exist.
-    # create_baseline_reports(applications_to_watch)  # finds potential advisory based on product watched.
-    # find_open_advisories_by_version(applications_to_watch)  # eliminates advisories which are no longer a concern.
+    download_cve_details()  # gets the data on the date of running script.
+    create_bulletins_products()  # ensures the bulletins and products json files exist.
+    create_baseline_reports(applications_to_watch)  # finds potential advisory based on product watched.
+    find_open_advisories_by_version(applications_to_watch)  # eliminates advisories which are no longer a concern.
     cleanup_old_dates()
 
 

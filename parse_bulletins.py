@@ -13,53 +13,6 @@ def cleanhtml(raw_html):
     return clean_text
 
 
-def version_as_number(v_string):
-
-    dots = 0
-    patches = False
-    for letter in v_string:
-        if letter == ".":
-            dots += 1
-        if letter == "P":
-            patches = True
-
-    if patches:
-        major_minor = v_string.split("P")[0].rstrip(".")
-        patch_number = v_string.split("P")[1]
-        patch_number = str(patch_number).zfill(2)
-    else:
-        major_minor = v_string.rstrip(".")
-        patch_number = str(00)
-
-    try:
-        major = major_minor.split(".")[0]
-    except IndexError:
-        major = str(00)
-
-    try:
-        minor = major_minor.split(".")[1]
-        minor = str(minor).zfill(2)
-    except IndexError:
-        minor = str(00)
-    try:
-        special = major_minor.split(".")[2]
-        special = str(special).zfill(2)
-    except IndexError:
-        special = str(00)
-
-    iv_number = major + minor + special + "." + patch_number
-    iv_number = float(iv_number)
-    # print()
-    # print("version:", v_string)
-    # print("major:", major)
-    # print("minor:", minor)
-    # print("special:", special)
-    # print("patch_number:", patch_number)
-    # print("iv_number:", iv_number)
-
-    return iv_number
-
-
 def rating_number(level):
     if level.upper() == 'CRITICAL':
         return 5
@@ -212,15 +165,22 @@ def find_open_advisories_by_version(application_list, today):
         if application_key == "ONTAP":
             application_versions.extend(application_versions)
 
+        app_versions_lookup = os.path.join(data_folder, application_key + "_versions.json")
+
         print("application_name:".ljust(30), application_name)
         print("application_key:".ljust(30), application_key)
         print("application_versions:".ljust(30), application_versions)
+        print("app_versions_lookup:".ljust(30), app_versions_lookup)
+        with open(app_versions_lookup, 'r', encoding="utf-8") as app_version_in:
+            vendor_releases = json.loads(app_version_in.read())
 
         app_details_json = os.path.join(ntap_bulletins_folder, "APP_" + application_key + "_details.json")
         app_open_json = os.path.join(ntap_bulletins_folder, "APP_" + application_key + "_open.json")
         app_closed_json = os.path.join(ntap_bulletins_folder, "APP_" + application_key + "_closed.json")
-        formatted_open_json = os.path.join(ntap_bulletins_folder, "APP_" + application_key + "_formatted.json")
-        formatted_list = []
+        formatted_open_json = os.path.join(ntap_bulletins_folder, "APP_" + application_key + "_CHECK_OPEN.json")
+        formatted_close_json = os.path.join(ntap_bulletins_folder, "APP_" + application_key + "_CHECK_CLOSE.json")
+        formatted_open = []
+        formatted_closed = []
         with open(app_open_json, 'r', encoding="utf-8") as file_in:
             kb_open_list = json.loads(file_in.read())
         for kb_number in kb_open_list:
@@ -305,7 +265,6 @@ def find_open_advisories_by_version(application_list, today):
                         for fix_key in kb_fixes:
                             fixed_product = fix_key["product"]
                             if fixed_product.lower() == application_name.lower():
-
                                 try:
                                     fix_list = fix_key["fixes"]
                                     for key_name in fix_list:
@@ -323,7 +282,27 @@ def find_open_advisories_by_version(application_list, today):
                     if kb_workarounds == "None at this time.":
                         kb_workarounds = []
 
+                    keep_kb_number = True
+                    for my_app_installed_version in application_versions:
+                        my_app_release = ""
+                        for k_app, k_ver in vendor_releases.items():
+                            if k_app == my_app_installed_version:
+                                my_app_release = k_ver
+                                break
+
+                        # print("my_app_installed_version:".ljust(30), my_app_installed_version, my_app_release)
+                        for fixed_version in fixed_versions:
+                            for k_app, k_ver in vendor_releases.items():
+                                if k_app == fixed_version:
+                                    fixed_release = k_ver
+                                    if my_app_release >= fixed_release:
+                                        # print("IS ALREADY AT A FIXED VERSION")
+                                        # print("fixed_version:".ljust(30), fixed_version, fixed_release)
+                                        keep_kb_number = False
+                                        break
+
                     my_key = {
+                        "KB_KEEP": keep_kb_number,
                         "kb_number": kb_number,
                         "kb_status": kb_status,
                         "kb_release_date": kb_release_date,
@@ -349,19 +328,30 @@ def find_open_advisories_by_version(application_list, today):
                         "kb_cve": kb_cve,
                         "kb_workarounds": kb_workarounds
                     }
-                    json_string = json.dumps(my_key, indent=4, sort_keys=False)
-                    if kb_release_date == 19750101 or kb_last_update == 19750101:
-                        exit(911)
-                    formatted_list.append(my_key)
+                    if keep_kb_number:
+                        formatted_open.append(my_key)
+                    else:
+                        formatted_closed.append(my_key)
 
-            json_string = json.dumps(formatted_list, indent=4, sort_keys=False)
+            json_string = json.dumps(formatted_open, indent=4, sort_keys=False)
             with open(formatted_open_json, "w", encoding="utf-8") as json_out:
+                json_out.write(json_string)
+
+            json_string = json.dumps(formatted_closed, indent=4, sort_keys=False)
+            with open(formatted_close_json, "w", encoding="utf-8") as json_out:
                 json_out.write(json_string)
 
             csv_out = formatted_open_json.replace(".json", ".csv")
             with open(formatted_open_json, encoding='utf-8') as input_file:
                 df = pd.read_json(input_file)
             df.to_csv(csv_out, encoding='utf-8', index=False)
+
+            csv_out = formatted_close_json.replace(".json", ".csv")
+            with open(formatted_close_json, encoding='utf-8') as input_file:
+                df = pd.read_json(input_file)
+            df.to_csv(csv_out, encoding='utf-8', index=False)
+
+
     print("exited:".ljust(30), "find_open_advisories_by_version")
 
 

@@ -68,12 +68,6 @@ def html_list_cve_bulletins():
     os.makedirs(data_folder, exist_ok=True)
     os.makedirs(ntap_folder, exist_ok=True)
 
-    # ntap_rss = os.path.join(data_folder, 'bulletins', date_stamp, "ntap_rss.xml")
-    # rss_feed = "https://security.netapp.com/advisory/index.xml"
-    # rss = requests.get(rss_feed, verify=False)
-    # with open(ntap_rss, 'wb') as file_xml:
-    #     file_xml.write(rss.content)
-
     data_feed = "https://security.netapp.com/data/advisory/"
     html_page = requests.get(data_feed, verify=False).content
     soup_page = bs4.BeautifulSoup(html_page, features="html.parser")
